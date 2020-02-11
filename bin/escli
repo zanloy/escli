@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require 'escli/runner'
+runner = ESCLI::Runner.new(ARGV)
+runner.start
