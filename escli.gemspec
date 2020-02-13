@@ -1,9 +1,13 @@
-$:.push File.expand_path("../lib", __FILE__)
+# -*- encoding: utf-8 -*-
+
+lib = File.expand_path('../lib/', __FILE__)
+$:.unshift lib unless $:.include?(lib)
+
 require "escli/version"
 
 Gem::Specification.new do |gem|
   gem.name = 'escli'
-  gem.version = ESCLI::VERSION
+  gem.version = Escli::VERSION
   gem.authors = ['Zan Loy']
   gem.email = ['zan.loy@gmail.com']
   gem.homepage = 'https://github.com/zanloy/escli'

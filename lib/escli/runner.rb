@@ -1,47 +1,40 @@
-require 'json'
-require 'lp'
-require 'pry'
 require 'thor'
-require 'yaml'
 
-require 'main'
+require 'escli/helpers'
+require 'escli/params'
+require 'escli/subcommands/all'
 
-module ESCLI
+module Escli
   CURL = 'curl -sS'
   ES = 'http://prod8-elasticsearch-client.logging:9200'
   WRAPPER = 'kubectl exec -it -n zan ruby --'
 
-  class CLI < Thor
+  class Runner < Thor
     include Helpers
 
     class_option :'dry-run', type: :boolean, defaut: false, aliases: '-d'
     class_option :output, type: :string, default: 'table', aliases: '-o'
+    class_option :params, type: :hash, default: {}, aliases: '-p'
     class_option :verbose, type: :boolean, default: false, aliases: '-v'
     class_option :wrap, type: :boolean, default: false, aliases: '-w'
 
-    #desc 'curl PATH', 'Curl the PATH'
-    #method_option :path, default: '/', aliases: '-p'
-    #def curl(path)
-    #  cmd = "#{CURL} #{ES}/#{path}"
-    #  cmd = "#{WRAPPER} #{cmd}" if options.wrap
-    #  puts ".curl.cmd => #{cmd}" if options.verbose
-    #  resp = %x(#{cmd}) unless options[:'dry-run']
-    #  begin
-    #    JSON.parse(resp)
-    #  rescue
-    #    resp
-    #  end
-    #end
+    desc 'cluster', 'Cluster level commands'
+    subcommand 'cluster', Cluster
+    desc 'nodes', 'Nodes level commands'
+    subcommand 'nodes', Nodes
 
-    desc 'health', 'Display cluster health'
+    desc 'health', 'Displays Cluster health'
     def health
-      result = curl('_cluster/health')
-      output(result)
+      cluster = Cluster.new
+      cluster.options = options
+      cluster.health
     end
 
-    desc 'nodes', 'Subcommand for nodes'
-    subcommand 'nodes', Nodes
-  end #Class::CLI
-end #Module::ESCLI
-
-# vim: set ft=ruby shiftwidth=2 expandtab
+    desc 'repl', 'Start this application in REPL (interactive) mode.'
+    def repl
+      require 'readline'
+      require 'thor_repl'
+      ThorRepl.start(self.class, prompt: 'escli> ')
+    end
+  end
+end

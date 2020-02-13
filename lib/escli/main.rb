@@ -1,1 +1,1 @@
-require 'subcommands/nodes'
+require 'escli/subcommands/nodes'

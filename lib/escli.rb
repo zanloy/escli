@@ -4,6 +4,6 @@ require 'yaml'
 
 require 'escli/helpers'
 
-module ESCLI
+module Escli
   autoload :VERSION, 'escli/version'
 end
