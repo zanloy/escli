@@ -2,6 +2,7 @@
 source 'https://rubygems.org'
 
 # Gems
+gem 'config'
 gem 'filesize'
 gem 'lp'
 gem 'json'

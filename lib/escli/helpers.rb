@@ -7,10 +7,15 @@ require 'pry'
 module Escli
   module Helpers
     def curl(path)
-      cmd = "#{CURL} #{ES}/#{path}#{parsed_params}"
-      cmd = "#{WRAPPER} #{cmd}" if options.wrap
-      puts ".curl.cmd => #{cmd}" if options.verbose
-      resp = %x(#{cmd}) unless options[:'dry-run']
+      endpoint = Settings.es.endpoint
+      curl_cmd = 'curl'
+      curl_cmd = Settings.curl if Settings.has_key? :curl
+      curl_cmd += " #{endpoint}/#{path}#{parsed_params}"
+      if Settings.es.curl.has_key? :wrap_with
+        curl_cmd = Settings.es.curl.wrap_with % { curl: curl_cmd }
+      end
+      puts "curl.cmd => #{curl_cmd}" if Settings.verbose
+      resp = %x(#{curl_cmd}) unless options[:'dry-run']
       begin
         JSON.parse(resp)
       rescue

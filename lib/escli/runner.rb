@@ -1,3 +1,4 @@
+require 'config'
 require 'thor'
 
 require 'escli/helpers'
@@ -18,12 +19,31 @@ module Escli
     class_option :verbose, type: :boolean, default: false, aliases: '-v'
     class_option :wrap, type: :boolean, default: false, aliases: '-w'
 
+    def initialize(*args)
+      super
+      Config.load_and_set_settings([File.expand_path('~/.escli/config.yaml')])
+      # Verify clusters exists
+      raise "FATAL: No clusters set in config file. Verify at least 1 cluster is configured." unless Settings.has_key? :clusters
+      # Load current_cluster settings
+      Settings.es = Settings.has_key?(:current_cluster) ? Settings.clusters[Settings.current_cluster] : Settings.clusters.first
+      # If we don't have a valid endpoint then Error
+      unless Settings.es.has_key? :endpoint
+        raise 'FATAL: No endpoint is set for the currently configured cluster'
+      end
+      Settings.options = options
+      options.each do |k,v|
+        Settings[k] = v
+      end
+      binding.pry
+    end
+
     desc 'cluster', 'Cluster level commands'
     subcommand 'cluster', Cluster
+
     desc 'nodes', 'Nodes level commands'
     subcommand 'nodes', Nodes
 
-    desc 'health', 'Displays Cluster health'
+    desc 'health', 'Displays cluster health - alias to "escli cluster health"'
     def health
       cluster = Cluster.new
       cluster.options = options
